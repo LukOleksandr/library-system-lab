@@ -18,9 +18,30 @@ class Book:
         self.isbn = isbn
         self.total_copies = total_copies
         self.genre = genre
+        self._borrowed_count = 0
+
+    @property
+    def available_copies(self) -> int:
+        return self.total_copies - self._borrowed_count
+
+    @property
+    def is_borrowed(self) -> bool:
+        return self._borrowed_count >= self.total_copies
 
     def is_available(self) -> bool:
-        return self.total_copies > 0
+        return self.available_copies > 0
+
+    def borrow(self) -> bool:
+        if self.is_borrowed:
+            return False
+        self._borrowed_count += 1
+        return True
+
+    def return_book(self) -> bool:
+        if self._borrowed_count == 0:
+            return False
+        self._borrowed_count -= 1
+        return True
 
     def __str__(self) -> str:
         return f"{self.title} ({self.author}, {self.publication_year})"
