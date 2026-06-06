@@ -93,4 +93,4 @@ class Catalog(BookSearch):
     def get_all_books(self) -> List[Book]:
         return list(self._books)
 
-# changed line 1
+# changed line 2
