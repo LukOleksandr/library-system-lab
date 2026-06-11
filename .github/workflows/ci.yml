@@ -6,13 +6,17 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.10", "3.11"]
+
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set up Python
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
-          python-version: "3.11"
+          python-version: ${{ matrix.python-version }}
 
       - name: Install dependencies
         run: |
@@ -23,7 +27,7 @@ jobs:
         run: flake8 . --count --max-complexity=10 --statistics
 
       - name: Lint with pylint
-        run: pylint *.py --fail-under=7.0 || true # не зупиняє пайплайн
+        run: pylint *.py --fail-under=7.0 || true
 
       - name: Type check with mypy
         run: mypy *.py --ignore-missing-imports || true
@@ -39,5 +43,5 @@ jobs:
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-report
+          name: coverage-report-python-${{ matrix.python-version }}
           path: htmlcov/
