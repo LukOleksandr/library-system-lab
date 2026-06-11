@@ -7,6 +7,8 @@ on:
 jobs:
   tag:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - uses: actions/checkout@v3
@@ -24,11 +26,21 @@ jobs:
         with:
           script: |
             const version = process.env.VERSION;
-            github.rest.git.createRef({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ref: `refs/tags/v${version}`,
-              sha: context.sha
-            });
+            const tag = `v${version}`;
+            try {
+              await github.rest.git.createRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: `refs/tags/${tag}`,
+                sha: context.sha
+              });
+              core.info(`Created tag ${tag}`);
+            } catch (error) {
+              if (error.status === 422) {
+                core.info(`Tag ${tag} already exists, skipping.`);
+              } else {
+                throw error;
+              }
+            }
         env:
           VERSION: ${{ steps.version.outputs.version }}
